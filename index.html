@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanceFlow AI</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #172033;
+    }
+
+    header {
+      background: #172033;
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      box-sizing: border-box;
+      border: 1px solid #ccd3df;
+      border-radius: 10px;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+
+    button {
+      background: #172033;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .stats {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 180px;
+      background: #eef2f7;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .expense {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .amount {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>FinanceFlow AI</h1>
+  <p>Din intelligente økonomiassistent</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Tilføj en udgift</h2>
+
+    <input
+      id="expenseInput"
+      type="text"
+      placeholder="Fx: Jeg brugte 250 kr på mad"
+    >
+
+    <button onclick="addExpense()">Tilføj udgift</button>
+  </div>
+
+  <div class="card">
+    <h2>Dit overblik</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <strong>Samlet brugt</strong>
+        <h2 id="total">0 kr.</h2>
+      </div>
+
+      <div class="stat">
+        <strong>Antal udgifter</strong>
+        <h2 id="count">0</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Seneste udgifter</h2>
+    <div id="expenses">
+      <p>Ingen udgifter endnu.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let expenses = [];
+
+  function addExpense() {
+    const input = document.getElementById("expenseInput");
+    const text = input.value.trim();
+
+    if (!text) {
+      alert("Skriv en udgift først.");
+      return;
+    }
+
+    const match = text.match(/(\d+(?:[.,]\d+)?)\s*kr/i);
+
+    if (!match) {
+      alert("Jeg kunne ikke finde et beløb. Prøv fx: 250 kr på mad");
+      return;
+    }
+
+    const amount = parseFloat(match[1].replace(",", "."));
+
+    let category = "Andet";
+
+    const lowerText = text.toLowerCase();
+
+    if (
+      lowerText.includes("mad") ||
+      lowerText.includes("restaurant") ||
+      lowerText.includes("pizza")
+    ) {
+      category = "Mad";
+    } else if (
+      lowerText.includes("benzin") ||
+      lowerText.includes("bus") ||
+      lowerText.includes("tog") ||
+      lowerText.includes("transport")
+    ) {
+      category = "Transport";
+    } else if (
+      lowerText.includes("spil") ||
+      lowerText.includes("game")
+    ) {
+      category = "Gaming";
+    }
+
+    expenses.push({
+      amount: amount,
+      category: category,
+      text: text
+    });
+
+    input.value = "";
+
+    updateDashboard();
+  }
+
+  function updateDashboard() {
+    const total = expenses.reduce((sum, expense) => {
+      return sum + expense.amount;
+    }, 0);
+
+    document.getElementById("total").textContent =
+      total.toFixed(2) + " kr.";
+
+    document.getElementById("count").textContent =
+      expenses.length;
+
+    const list = document.getElementById("expenses");
+
+    if (expenses.length === 0) {
+      list.innerHTML = "<p>Ingen udgifter endnu.</p>";
+      return;
+    }
+
+    list.innerHTML = "";
+
+    expenses.slice().reverse().forEach(expense => {
+      const div = document.createElement("div");
+
+      div.className = "expense";
+
+      div.innerHTML = `
+        <span>${expense.category} – ${expense.text}</span>
+        <span class="amount">${expense.amount.toFixed(2)} kr.</span>
+      `;
+
+      list.appendChild(div);
+    });
+  }
+</script>
+
+</body>
+</html>
